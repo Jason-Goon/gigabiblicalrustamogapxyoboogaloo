@@ -11,7 +11,6 @@ use serde::Deserialize;
 use std::env;
 use actix_cors::Cors;
 
-
 struct AppState {
     task_id_counter: Mutex<i32>,
 }
@@ -31,13 +30,13 @@ async fn convert_image_endpoint(
     let mut file_path: Option<PathBuf> = None;
     let mut original_filename = String::new();
 
-    while let Some(mut field) = payload.try_next().await? {  // Declare field as mutable
+    while let Some(mut field) = payload.try_next().await? {  
         if let Some(filename) = field.content_disposition().get_filename() {
             original_filename = filename.to_string();
             let filepath = Path::new("uploads").join(&filename);
             let mut f = fs::File::create(filepath.clone()).await?;
             
-            while let Some(chunk) = field.try_next().await? {  // This will now work
+            while let Some(chunk) = field.try_next().await? {  
                 f.write_all(&chunk).await?;
             }
             f.sync_all().await?;
@@ -152,8 +151,8 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .app_data(state.clone()) // This passes the state to the application
-            .wrap(Cors::permissive()) // Use permissive CORS for development
+            .app_data(state.clone()) 
+            .wrap(Cors::permissive()) 
             .service(convert_image_endpoint)
             .service(serve_converted_image)
     })
